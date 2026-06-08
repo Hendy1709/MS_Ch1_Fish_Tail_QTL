@@ -75,3 +75,33 @@ SM_data_mm <- SM_data_mm %>%
          middle_ray_mm,
          longest_ray_mm,
          outside_ray_mm)
+
+### implement forkedness, roundedness, and peduncle-length ratio data onto the df
+#forkedness: middle ray / longest ray
+#roundedness: middle ray / outside ray
+#peduncle-length ratio: Caudal Peduncle / Standard Length
+
+HGFRS_data_mm <- HGFRS_data_mm %>% 
+  mutate(forkedness = longest_ray_mm/middle_ray_mm,
+         roundedness = outside_ray_mm/middle_ray_mm,
+         peduncle.length = caudal_peduncle_mm)
+
+SM_data_mm <- SM_data_mm %>% 
+  mutate(forkedness = longest_ray_mm/middle_ray_mm,
+         roundedness = outside_ray_mm/middle_ray_mm,
+         peduncle.length = caudal_peduncle_mm)
+
+### Implement data into metadata file
+HGFRS_final <- left_join(mdata, HGFRS_data_mm, by = "ID")
+#Relocate columns
+HGFRS_final <- HGFRS_final %>%
+  relocate(caudal_peduncle_mm, middle_ray_mm, longest_ray_mm, outside_ray_mm, forkedness, roundedness, peduncle.length, .after = PC3)
+
+SM_final <- left_join(mdata, SM_data_mm, by = "ID")
+#Relocate columns
+SM_final <- SM_final %>%
+  relocate(caudal_peduncle_mm, middle_ray_mm, longest_ray_mm, outside_ray_mm, forkedness, roundedness, peduncle.length, .after = PC3)
+
+###Save df as csv; for QTL mapping
+write_csv(HGFRS_final, "MmAkF2.markers.HGFRS.csv", na = "")
+write_csv(SM_final, "MmAkF2.markers.SM.csv", na = "")
