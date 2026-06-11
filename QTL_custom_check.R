@@ -46,7 +46,7 @@ SM_data <- rename(SM_data,
 HGFRS_data <- HGFRS_data %>%
   mutate(conv.factor = standard_length/28)
 
-SM_data <- HGFRS_data %>%
+SM_data <- SM_data %>%
   mutate(conv.factor = standard_length/28)
 
 ### Standardize the data
@@ -105,3 +105,38 @@ SM_final <- SM_final %>%
 ###Save df as csv; for QTL mapping
 write_csv(HGFRS_final, "MmAkF2.markers.HGFRS.csv", na = "")
 write_csv(SM_final, "MmAkF2.markers.SM.csv", na = "")
+
+#==========================================================
+#QTL Analysis
+#==========================================================
+
+cross.mmak_HGFRS <- read.cross("csv", dir = "./",
+                         file = "MmAkF2.markers.HGFRS.csv",
+                         estimate.map = FALSE,
+                         genotypes = c("AA","AB","BB"))
+
+cross.mmak_SM <- read.cross("csv", dir = "./",
+                               file = "MmAkF2.markers.SM.csv",
+                               estimate.map = FALSE,
+                               genotypes = c("AA","AB","BB"))
+
+cross.mmak_HGFRS <- calc.genoprob(cross.mmak_HGFRS)
+cross.mmak_SM <- calc.genoprob(cross.mmak_SM)
+
+### Permutation testing
+#Forkedness HGFRS
+perm_forkedness_HGFRS <- scanone(cross.mmak_HGFRS, pheno = cross.mmak_HGFRS$pheno$forkedness, method = "ehk", n.perm = 1000)
+scanone_forkedness_HGFRS <- scanone(cross.mmak_HGFRS, pheno = cross.mmak_HGFRS$pheno$forkedness, method = "ehk")
+
+#Forkedness SM
+perm_forkedness_SM <- scanone(cross.mmak_SM, pheno = cross.mmak_SM$pheno$forkedness, method = "ehk", n.perm = 1000)
+scanone_forkedness_SM <- scanone(cross.mmak_SM, pheno = cross.mmak_SM$pheno$forkedness, method = "ehk")
+
+### QTL Mapping Compar
+#Forkedness HGFRS
+plot(scanone_forkedness_HGFRS, col = c("red"), alternate.chrid = TRUE, ylab = "LOD", ylim = c(0,3))
+add.threshold(scanone_forkedness_HGFRS, perms=perm_forkedness_HGFRS, col=c("black"), lty=2)
+
+#Forkedness SM
+plot(scanone_forkedness_SM, col = c("blue"), alternate.chrid = TRUE, ylab = "LOD")
+add.threshold(scanone_forkedness_SM, perms=perm_forkedness_SM, col=c("black"), lty=2)
