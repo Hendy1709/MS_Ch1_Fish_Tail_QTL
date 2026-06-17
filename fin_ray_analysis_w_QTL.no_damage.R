@@ -191,11 +191,12 @@ add.threshold(scanone_forkedness, perms=perm_forkedness, alpha = 0.05, col=c("bl
 add.threshold(scanone_forkedness, perms=perm_forkedness, alpha = 0.1, col=c("black"), lty=2)
 
 
-### Phenotypic Effect Plots
+### Phenotypic Effect Plots=====================
+new_data.no_damage <- read.csv("MmAkF2.all_tail_pheno.all_chr.shared_markers.no_damaged_tails.csv", na.strings = "")
 new_data_effectplots <- new_data.no_damage[-(1:2), ]
 
 #Caudal Peduncle Residuals LG7 
-ggplot(new_data_effectplots,aes(x = NC_036786.1_43634682, y = resid.sl_pedlength_cleaned)) +
+#ggplot(new_data_effectplots,aes(x = NC_036786.1_43634682, y = resid.sl_pedlength_cleaned)) +
   geom_violin(aes(fill = NC_036786.1_43634682)) +
   geom_boxplot(width = 0.75, alpha = 0.75) +
   geom_beeswarm(cex = 1.2) +

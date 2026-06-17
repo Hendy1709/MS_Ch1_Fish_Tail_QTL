@@ -120,34 +120,33 @@ plot(roundedness.HGFRS ~ roundedness.SM, HGFRS_SM_final.w.removed)
 plot(peduncle.length.HGFRS ~ peduncle.length.SM, HGFRS_SM_final.w.removed)
 
 ###Save df as csv; for QTL mapping
-#write_csv(HGFRS_final, "MmAkF2.markers.HGFRS.csv", na = "")
-#write_csv(SM_final, "MmAkF2.markers.SM.csv", na = "")
+write_csv(HGFRS_SM_final, "MmAkF2.markers.HGFRS_and_SM.csv", na = "")
+
 
 #==========================================================
 #QTL Analysis
 #==========================================================
 
-cross.mmak_HGFRS <- read.cross("csv", dir = "./",
-                         file = "MmAkF2.markers.HGFRS.csv",
+cross.mmak_HGFRS_and_SM <- read.cross("csv", dir = "./",
+                         file = "MmAkF2.markers.HGFRS_and_SM.csv",
                          estimate.map = FALSE,
                          genotypes = c("AA","AB","BB"))
 
-cross.mmak_SM <- read.cross("csv", dir = "./",
-                               file = "MmAkF2.markers.SM.csv",
-                               estimate.map = FALSE,
-                               genotypes = c("AA","AB","BB"))
 
-cross.mmak_HGFRS <- calc.genoprob(cross.mmak_HGFRS)
-cross.mmak_SM <- calc.genoprob(cross.mmak_SM)
+cross.mmak_HGFRS_and_SM <- calc.genoprob(cross.mmak_HGFRS_and_SM)
+
 
 ### Permutation testing
-#Forkedness HGFRS
+#Forkedness
 perm_forkedness_HGFRS <- scanone(cross.mmak_HGFRS, pheno = cross.mmak_HGFRS$pheno$forkedness, method = "ehk", n.perm = 1000)
 scanone_forkedness_HGFRS <- scanone(cross.mmak_HGFRS, pheno = cross.mmak_HGFRS$pheno$forkedness, method = "ehk")
 
-#Forkedness SM
 perm_forkedness_SM <- scanone(cross.mmak_SM, pheno = cross.mmak_SM$pheno$forkedness, method = "ehk", n.perm = 1000)
 scanone_forkedness_SM <- scanone(cross.mmak_SM, pheno = cross.mmak_SM$pheno$forkedness, method = "ehk")
+
+#Caudal Peduncle
+perm_caudped_HGFRS <- scanone(cross.mmak_HGFRS, pheno = cross.mmak_HGFRS$pheno$peduncle.length, method = "ehk", n.perm = 1000)
+scanone_caudped_HGFRS <- scanone(cross.mmak_HGFRS, pheno = cross.mmak_HGFRS$pheno$forkedness, method = "ehk")
 
 ### QTL Mapping Compar
 #Forkedness HGFRS
