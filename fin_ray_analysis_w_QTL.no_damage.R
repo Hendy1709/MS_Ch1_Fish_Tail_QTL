@@ -167,6 +167,8 @@ scanone_caudal_resid <- scanone(cross.mmak, pheno = cross.mmak$pheno$caudal_pedu
 summary(scanone_caudal_resid)
 summary(perm_caudal_resid)
 
+
+
 ### Generate the Maps
 #Middle Ray residuals
 plot(scanone_midray, col = c("red"), alternate.chrid = TRUE, ylab = "LOD")
@@ -264,4 +266,12 @@ ggplot(new_data_effectplots,aes(x = NC_036793.1_8652418, y = peduncle.length)) +
   xlab("Genotype") +
   ylab("Caudal Peduncle") +
   facet_wrap(~inferred_excluding_clear_missmatches)
- 
+
+#Forkedness LG12
+ggplot(new_data_effectplots,aes(x = NC_036791.1_20633938 , y = forkedness)) +
+  geom_violin(aes(fill = NC_036791.1_20633938 )) +
+  geom_boxplot(width = 0.75, alpha = 0.75) +
+  geom_beeswarm(cex = 1.2) +
+  scale_x_discrete(na.translate = FALSE) +
+  xlab("Genotype") +
+  ylab("Forkedness")
