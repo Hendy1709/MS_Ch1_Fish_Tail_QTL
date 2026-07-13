@@ -9,6 +9,7 @@ library(qtl)
 library(qtlcharts)
 library(ggbeeswarm)
 library(dplyr)
+library(ggpubr)
 #============================================================================
 
 #upload data
@@ -124,6 +125,10 @@ cross.mmak <- calc.genoprob(cross.mmak)
 #Change names; easier to track
 names(cross.mmak$geno) <- c("LG1", "LG2", "LG3", "LG4", "LG5", "LG6", "LG7", "LG8", "LG9", "LG10","LG11", "LG12", "LG13", "LG14", "LG15", "LG16", "LG17", "LG18", "LG19", "LG20", "LG22", "LG23")
 
+### Covariates
+# Sex
+covar_sex <- data.frame(sex = cross.mmak$pheno$inferred_excluding_clear_missmatches)
+
 ### Permutation Runs
 #Forkedness
 perm_forkedness <- scanone(cross.mmak, pheno = cross.mmak$pheno$forkedness, method = "ehk", n.perm = 1000)
@@ -164,9 +169,20 @@ summary(perm_outray)
 perm_caudal_resid <- scanone(cross.mmak, pheno = cross.mmak$pheno$resid.sl_pedlength_cleaned, method = "ehk", n.perm = 1000)
 scanone_caudal_resid <- scanone(cross.mmak, pheno = cross.mmak$pheno$caudal_peduncle_mm, method = "ehk")
 
+perm_caudal_resid_w_sex <- scanone(cross.mmak, pheno = cross.mmak$pheno$resid.sl_pedlength_cleaned, method = "ehk", n.perm = 1000, addcovar = covar_sex)
+scanone_caudal_resid_w_sex <- scanone(cross.mmak, pheno = cross.mmak$pheno$caudal_peduncle_mm, method = "ehk", addcovar = covar_sex)
+
+perm_caudal_resid_w_sexintcovar <- scanone(cross.mmak, pheno = cross.mmak$pheno$resid.sl_pedlength_cleaned, method = "ehk", n.perm = 1000, addcovar = covar_sex, intcovar = covar_sex)
+scanone_caudal_resid_w_sexintcovar <- scanone(cross.mmak, pheno = cross.mmak$pheno$caudal_peduncle_mm, method = "ehk", addcovar = covar_sex, intcovar = covar_sex)
+
 summary(scanone_caudal_resid)
 summary(perm_caudal_resid)
 
+summary(scanone_caudal_resid_w_sex)
+summary(perm_caudal_resid_w_sex)
+
+summary(scanone_caudal_resid_w_sexintcovar)
+summary(perm_caudal_resid_w_sexintcovar)
 
 
 ### Generate the Maps
@@ -186,6 +202,13 @@ add.threshold(scanone_outray, perms=perm_outray, col=c("black"), lty=2)
 plot(scanone_caudal_resid, col = c("orange"), alternate.chrid = TRUE, ylab = "LOD")
 add.threshold(scanone_caudal_resid, perms=perm_caudal_resid, alpha = 0.05, col=c("black"), lty=1)
 add.threshold(scanone_caudal_resid, perms=perm_caudal_resid, alpha = 0.1, col=c("black"), lty=2)
+
+plot(scanone_caudal_resid_w_sex, col = c("orange"), alternate.chrid = TRUE, ylab = "LOD")
+add.threshold(scanone_caudal_resid_w_sex, perms=perm_caudal_resid_w_sex, alpha = 0.05, col=c("black"), lty=1)
+
+plot(scanone_caudal_resid_w_sexintcovar, col = c("orange"), alternate.chrid = TRUE, ylab = "LOD")
+add.threshold(scanone_caudal_resid_w_sexintcovar, perms=perm_caudal_resid_w_sexintcovar, alpha = 0.05, col=c("black"), lty=1)
+
 
 #Forkedness
 plot(scanone_forkedness, col = c("light blue"), alternate.chrid = TRUE, ylab = "LOD")
@@ -275,3 +298,17 @@ ggplot(new_data_effectplots,aes(x = NC_036791.1_20633938 , y = forkedness)) +
   scale_x_discrete(na.translate = FALSE) +
   xlab("Genotype") +
   ylab("Forkedness")
+
+##===========================================================
+#Plotting for XX and XY individuals that are AB in chr 7
+ab_sex_df <- new_data.no_damage %>%
+  filter(NC_036786.1_43634682 == "AB") %>%
+  filter(!is.na(inferred_excluding_clear_missmatches))
+
+#Generate boxplot
+ggplot(ab_sex_df, aes(x= as.factor(inferred_excluding_clear_missmatches), y=peduncle.length)) +
+  geom_boxplot() +
+  labs(x = "0:Female, 1:Male", y = "Peduncle Length")
+
+wilcox.test(data = ab_sex_df, peduncle.length ~ inferred_excluding_clear_missmatches, paired = FALSE)
+
